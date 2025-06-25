@@ -1,7 +1,7 @@
-import {  Flex, Layout, Space } from 'antd';
+import { Flex, Layout, Space } from 'antd';
 import React from 'react';
 
-const {  Footer,  } = Layout;
+const { Footer, } = Layout;
 
 
 const footerStyle: React.CSSProperties = {
@@ -52,6 +52,7 @@ const layoutStyle: React.CSSProperties = {
     height: '100%',
     minHeight: '100vh',
     maxWidth: '480px',
+    margin: "auto"
 };
 
 
@@ -60,52 +61,54 @@ const App: React.FC<{
 }> = ({
     children
 }) => {
-    return (
-        <Flex gap="middle" wrap>
-            <Layout style={layoutStyle}>
-                {children}
-                <Footer style={footerStyle}>
-                    <div style={footerContainerStyle}>
-                        <div >
-                            <a href="/booking" style={footerItemsStyle}>
-                                <div style={footerItemIconStyle}>
-                                    <img alt="Booking" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714220676316-Group%201171275107.svg"
-                                        style={{
+        return (
+            <Flex gap="middle" wrap style={{
+                backgroundColor:"gray"
+            }}>
+                <Layout style={layoutStyle}>
+                    {children}
+                    <Footer style={footerStyle}>
+                        <div style={footerContainerStyle}>
+                            <div >
+                                <a href="/booking" style={footerItemsStyle}>
+                                    <div style={footerItemIconStyle}>
+                                        <img alt="Booking" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714220676316-Group%201171275107.svg"
+                                            style={{
+                                                position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"
+                                            }} />
+                                    </div>
+                                    <p className="sc-715cd296-4 jJyYuo">Booking</p>
+                                    <div>
+                                        <div className="sc-715cd296-6 fZoNEr" style={{ opacity: 1 }}>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div>
+                                <a style={footerItemsStyle} href="/mybooking">
+                                    <div style={footerItemIconStyle}>
+                                        <img alt="My bookings" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714267461653-Group%201171275104.svg" style={{
                                             position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"
                                         }} />
-                                </div>
-                                <p className="sc-715cd296-4 jJyYuo">Booking</p>
-                                <div>
-                                    <div className="sc-715cd296-6 fZoNEr" style={{ opacity: 1 }}>
                                     </div>
-                                </div>
-                            </a>
+                                    <p className="sc-715cd296-4 jJyYuo">My bookings</p>
+                                </a>
+                            </div>
+                            <div >
+                                <a style={footerItemsStyle} href="/profile">
+                                    <div style={footerItemIconStyle}>
+                                        <img alt="Profile" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714220683911-Group%201171275106.svg" style={{
+                                            position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"
+                                        }} />
+                                    </div>
+                                    <p className="sc-715cd296-4 jJyYuo">โปรไฟล์</p>
+                                </a>
+                            </div>
                         </div>
-                        <div>
-                            <a style={footerItemsStyle} href="/mybooking">
-                                <div style={footerItemIconStyle}>
-                                    <img alt="My bookings" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714267461653-Group%201171275104.svg" style={{
-                                        position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"
-                                    }} />
-                                </div>
-                                <p className="sc-715cd296-4 jJyYuo">My bookings</p>
-                            </a>
-                        </div>
-                        <div >
-                            <a style={footerItemsStyle} href="/profile">
-                                <div style={footerItemIconStyle}>
-                                    <img alt="Profile" loading="lazy" decoding="async" data-nimg="fill" src="https://rewarding-rocket.s3.ap-southeast-1.amazonaws.com/1714220683911-Group%201171275106.svg" style={{
-                                        position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"
-                                    }} />
-                                </div>
-                                <p className="sc-715cd296-4 jJyYuo">โปรไฟล์</p>
-                            </a>
-                        </div>
-                    </div>
-                </Footer>
-            </Layout>
-        </Flex>
-    )
-};
+                    </Footer>
+                </Layout>
+            </Flex>
+        )
+    };
 
 export default App;
