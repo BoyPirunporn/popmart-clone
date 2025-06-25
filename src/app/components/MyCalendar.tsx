@@ -13,6 +13,13 @@ export default function MyCalendar() {
                 displayStaticWrapperAs="desktop"
                 value={value}
                 onChange={(newValue) => setValue(newValue)}
+                slotProps={{
+                    actionBar: {
+                        actions: [],
+                    },
+                  }}
+                minDate={new Date()}   // จำกัดให้แค่เดือนเดียว (มิ.ย.)
+                maxDate={new Date()}
             />
         </LocalizationProvider>
     );
