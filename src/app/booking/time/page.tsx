@@ -1,13 +1,18 @@
-'use client'
-import MyCalendar from '@/app/components/MyCalendar'
-import React from 'react'
+"use client"
+import React from 'react';
+import StepPage from './components/StepPage';
 
-const TimeBookingPage = () => {
+const Page = () => {
+  const [mounted,setMounted] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    setTimeout(() => {
+      setMounted(true);
+    },2*1000)
+  },[])
+  if(!mounted) return null;
   return (
-    <div>
-      <MyCalendar/>
-    </div>
-  )
-}
+    <StepPage />
+  );
+};
 
-export default TimeBookingPage
+export default Page;

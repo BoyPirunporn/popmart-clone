@@ -1,4 +1,4 @@
-import { Flex, Layout, Space } from 'antd';
+import { Flex, Layout } from 'antd';
 import React from 'react';
 
 const { Footer, } = Layout;
@@ -50,7 +50,7 @@ const layoutStyle: React.CSSProperties = {
     overflow: 'hidden',
     width: '100%',
     height: '100%',
-    minHeight: '100vh',
+    minHeight: '100dvh',
     maxWidth: '480px',
     margin: "auto"
 };
@@ -63,10 +63,16 @@ const App: React.FC<{
 }) => {
         return (
             <Flex gap="middle" wrap style={{
-                backgroundColor:"gray"
+                backgroundColor:"gray",
+                overflow:"hidden",
+                maxHeight:"100dvh"
             }}>
                 <Layout style={layoutStyle}>
-                    {children}
+                    <div style={{
+                        paddingBottom: "76px", // เท่ากับ footer height
+                    }}>
+                        {children}
+                    </div>
                     <Footer style={footerStyle}>
                         <div style={footerContainerStyle}>
                             <div >

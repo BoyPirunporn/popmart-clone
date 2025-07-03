@@ -6,12 +6,20 @@ import { ConfigProvider as AntdConfigProvider } from 'antd';
 import { CacheProvider } from '@emotion/react';
 import theme from './theme';
 import createEmotionCache from './emotionCache';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 import App from './components/App';
+import { compatibility } from './Compatibility';
 
 const clientSideEmotionCache = createEmotionCache();
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { children: React.ReactNode; }) {
+    const [mounted, setMounted] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+    if (!mounted) return null;
+
+    compatibility();
     return (
         <CacheProvider value={clientSideEmotionCache}>
             <ThemeProvider theme={theme}>

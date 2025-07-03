@@ -1,33 +1,27 @@
-import { Drawer, Space } from 'antd'
-import React, { FC } from 'react'
-import ListBranch from './ListBranch'
-import styled from 'styled-components'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Drawer, Space } from 'antd';
+import React, { FC } from 'react';
+import ListBranch from './ListBranch';
+import styled from 'styled-components';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '../styles-component/Button';
 
 type DrawerProps = {
-    open: boolean
-    onClose: () => void
-}
+    open: boolean;
+    onClose: () => void;
+};
 
 const ButtonDiv = styled.div`
 width: 100%;
 text-align: center;
-`
+`;
 
-const Button = styled.button<{
-    selected: boolean
-}>`
-width: 100%;
-background-color: ${props => props.selected ? 'red' : 'gray'};
-padding: 10px;
-cursor: pointer;
-`
+
 const DrawerBranch: React.FC<DrawerProps> = ({
     onClose,
     open
 }) => {
-    const [branch, setBranch] = React.useState<string>("")
+    const [branch, setBranch] = React.useState<string>("");
     const route = useRouter();
     return (
         <Drawer
@@ -38,8 +32,10 @@ const DrawerBranch: React.FC<DrawerProps> = ({
             open={open}
             key={"bottom"}
             width="100%"
+            height={800}
+
             getContainer={false}
-            rootStyle={{ position: 'absolute', padding: 0, margin: 0 }} // สำคัญมาก ถ้าจะไม่ให้เต็มจอ
+            rootStyle={{ position: 'absolute', padding: 0, margin: 0, overflowY: "auto" }} // สำคัญมาก ถ้าจะไม่ให้เต็มจอ
 
             extra={
                 <Space>
@@ -65,7 +61,7 @@ const DrawerBranch: React.FC<DrawerProps> = ({
                 <Button selected={!!branch} className="next-btn" onClick={() => route.push("/booking/time")}>Next</Button>
             </ButtonDiv>
         </Drawer>
-    )
-}
+    );
+};
 
-export default DrawerBranch
+export default DrawerBranch;
