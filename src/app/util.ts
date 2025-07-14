@@ -24,7 +24,7 @@ export function autoClickTiles(indices: number[]) {
 
     const canvas = wafElement.shadowRoot.querySelector("canvas");
     if (!canvas) return;
-
+    indices.pop()
     const buttons = canvas.querySelectorAll("button");
     indices.forEach((i) => {
         const btn = buttons[i];

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { askGeminiWithVision, autoClickTiles, splitCanvasInto9Images } from './util';
 
 declare global {
@@ -24,8 +24,9 @@ const Page = () => {
 
   // Render AWS CAPTCHA
   useEffect(() => {
-    if (!window.AwsWafCaptcha || !captchaRef.current) return;
+    console.log("NOT AWS => ", window.AwsWafCaptcha, captchaRef.current);
 
+    // if (window.AwsWafCaptcha || captchaRef.current) return;
     try {
       window.AwsWafCaptcha.renderCaptcha(captchaRef.current, {
         apiKey: process.env.NEXT_PUBLIC_AWS_CAPTCHA_KEY!,
@@ -45,6 +46,12 @@ const Page = () => {
     }
   }, [handleReload]);
 
+  const handleReset = () => {
+    setCanvas(null);       // clear state เพื่อให้รอ CAPTCHA ใหม่
+    setPromptType(null);   // reset prompt
+    setSubmitBtn(null);    // reset submit
+    setStarted(false)
+  };
   // Scan shadow DOM and set canvas
   useEffect(() => {
     if (canvas || started) return;
@@ -54,8 +61,15 @@ const Page = () => {
       if (wafElement?.shadowRoot) {
         const em = wafElement.shadowRoot.querySelector("em");
         const foundCanvas = wafElement.shadowRoot.querySelector("canvas");
+        const errorMsg = wafElement.shadowRoot.querySelector("p");
         const button = wafElement.shadowRoot.querySelector('button[type="submit"]') as HTMLButtonElement;
 
+        // 🛑 ตรวจจับ CAPTCHA ผิด
+        if (errorMsg?.textContent?.includes("Incorrect") || errorMsg?.textContent.includes("ผิดพลาด")) {
+          console.log("❌ CAPTCHA incorrect – resetting bot...");
+          handleReset();
+          return;
+        }
         if (foundCanvas && em && button) {
           setCanvas(foundCanvas as HTMLCanvasElement);
           setPromptType(em.textContent || "");
@@ -72,7 +86,8 @@ const Page = () => {
     }, 300);
 
     return () => clearInterval(interval);
-  }, [canvas, started]);
+  }, [canvas, started, handleReset]);
+
 
   // Process CAPTCHA image and auto-click
   useEffect(() => {
@@ -85,10 +100,11 @@ const Page = () => {
       const indices = await askGeminiWithVision(tiles, prompt);
       console.log("🤖 GPT returned indices:", indices);
       autoClickTiles(indices);
-      await delay(3*1000)
+      await delay(3 * 1000);
       submitBtn.click();
+      console.log("submit")
     };
-
+    
     runBot();
   }, [canvas, promptType, submitBtn]);
 
