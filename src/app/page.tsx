@@ -1,94 +1,102 @@
-"use client"
-import React, { useState } from 'react'
-import { askGeminiWithVision, askGPTWithVision, autoClickTiles, splitCanvasInto9Images } from './util'
+"use client";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { askGeminiWithVision, autoClickTiles, splitCanvasInto9Images } from './util';
+
 declare global {
   interface Window {
-    AwsWafCaptcha: any
+    AwsWafCaptcha: any;
   }
 }
-const page = () => {
-  const captchaRef = React.useRef<HTMLDivElement>(null)
-  const [canva, setCanva] = useState<HTMLCanvasElement | null>(null);
+
+const delay = (delay: number) => new Promise(resolve => setTimeout(resolve, delay));
+
+const Page = () => {
+  const captchaRef = useRef<HTMLDivElement>(null);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const [promptType, setPromptType] = useState<string | null>(null);
+  const [submitBtn, setSubmitBtn] = useState<HTMLButtonElement | null>(null);
+  const [started, setStarted] = useState(false);
 
-  React.useEffect(() => {
-    if (!window.AwsWafCaptcha || !captchaRef.current) return
-    window.AwsWafCaptcha.renderCaptcha(captchaRef.current, {
-      apiKey: process.env.NEXT_PUBLIC_AWS_CAPTCHA_KEY!, // ใส่ใน .env
-      onSuccess: (token: any) => {
-        console.log('CAPTCHA success:', token)
-        window.location.reload()
-      },
-      onError: (err: any) => {
-        console.error('CAPTCHA error:', err)
-      },
-      defaultLocale: 'th-TH',
-      disableLanguageSelector: true,
-    })
+  const handleReload = useCallback(() => {
+    console.log("🔄 Reloading in 2s...");
+    setTimeout(() => window.location.reload(), 2000);
+  }, []);
 
+  // Render AWS CAPTCHA
+  useEffect(() => {
+    if (!window.AwsWafCaptcha || !captchaRef.current) return;
 
-  }, [])
+    try {
+      window.AwsWafCaptcha.renderCaptcha(captchaRef.current, {
+        apiKey: process.env.NEXT_PUBLIC_AWS_CAPTCHA_KEY!,
+        onSuccess: () => {
+          console.log("✅ CAPTCHA passed");
+          handleReload();
+        },
+        onError: (err: any) => {
+          console.error("❌ CAPTCHA error:", err);
+          handleReload();
+        },
+        defaultLocale: 'th-TH',
+        disableLanguageSelector: true,
+      });
+    } catch (error) {
+      console.error("🚨 CAPTCHA render error:", error);
+    }
+  }, [handleReload]);
 
-  React.useEffect(() => {
-    if (canva) return;
+  // Scan shadow DOM and set canvas
+  useEffect(() => {
+    if (canvas || started) return;
 
     const interval = setInterval(() => {
       const wafElement = document.getElementsByTagName("awswaf-captcha")[0];
       if (wafElement?.shadowRoot) {
-        const em = wafElement.shadowRoot.querySelector("em")
-        const canvas = wafElement.shadowRoot.querySelector("canvas");
-        if (canvas) {
-          setCanva(canvas as HTMLCanvasElement);
-          console.log("SET CANVA");
-          setPromptType(em?.textContent!)
-          const labelEl = wafElement?.shadowRoot.querySelector("div")?.textContent?.toLowerCase() || "";
-          console.log({ labelEl })
-          clearInterval(interval); // เจอแล้วหยุด
+        const em = wafElement.shadowRoot.querySelector("em");
+        const foundCanvas = wafElement.shadowRoot.querySelector("canvas");
+        const button = wafElement.shadowRoot.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        if (foundCanvas && em && button) {
+          setCanvas(foundCanvas as HTMLCanvasElement);
+          setPromptType(em.textContent || "");
+          setSubmitBtn(button);
+          setStarted(true);
+          console.log("✅ Canvas & prompt found");
+          clearInterval(interval);
         } else {
-          console.log("⏳ Canvas not found in shadowRoot");
+          console.log("⏳ Waiting for CAPTCHA canvas...");
         }
       } else {
-        console.log("⏳ awswaf-captcha element or shadowRoot not ready");
+        console.log("⏳ Waiting for shadowRoot...");
       }
-    }, 300); // เช็คทุก 300ms
+    }, 300);
 
-    return () => clearInterval(interval); // cleanup ตอน unmount
-  }, [canva]);
+    return () => clearInterval(interval);
+  }, [canvas, started]);
 
+  // Process CAPTCHA image and auto-click
+  useEffect(() => {
+    if (!canvas || !promptType || !submitBtn) return;
 
+    const runBot = async () => {
+      const tiles = splitCanvasInto9Images(canvas);
+      const prompt = `These are 9 image tiles from a CAPTCHA. Tell me which tiles (numbered 1-9, left to right, top to bottom) contain '${promptType}'. Respond with only tile numbers as array.`;
 
-  React.useEffect(() => {
-    if (canva) {
-      const images = splitCanvasInto9Images(canva)
-      const prompt = "These are 9 image tiles from a CAPTCHA. Tell me which tiles (numbered 1-9, left to right, top to bottom) contain '" + promptType + "'. Respond with only tile numbers as array."
+      const indices = await askGeminiWithVision(tiles, prompt);
+      console.log("🤖 GPT returned indices:", indices);
+      autoClickTiles(indices);
+      await delay(3*1000)
+      submitBtn.click();
+    };
 
-      // askGeminiWithVision(images, prompt).then((indices) => {
-      //   console.log("🤖 GPT returned indices:", indices)
-      //   autoClickTiles(indices)
-      // })
-    }
-  }, [canva])
+    runBot();
+  }, [canvas, promptType, submitBtn]);
 
-  async function callInferenceAPI(base64Image: string) {
-    const response = await fetch('/api/hf-infer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64Image }),
-    });
-    const data = await response.json();
-    console.log('Inference result:', data);
-    return data;
-  }
   return (
-    <>
-      <div className="min-h-screen p-4">
-        <div ref={captchaRef} />
+    <div className="min-h-screen p-4">
+      <div ref={captchaRef} />
+    </div>
+  );
+};
 
-        {document.getElementsByTagName("awswaf-captcha")[0] ? "TRUE" : "FALSE"}
-
-      </div>
-    </>
-  )
-}
-
-export default page
+export default Page;
