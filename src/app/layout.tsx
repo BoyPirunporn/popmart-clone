@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@ant-design/v5-patch-for-react-19';
 import Providers from "./providers";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,8 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="th">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Script
+          id="aws-waf-captcha"
+          src="https://aa18dca179ca.edge.captcha-sdk.awswaf.com/aa18dca179ca/jsapi.js"
+          defer
+          type='text/javascript'
+        />
         <Providers>
           {children}
         </Providers>
