@@ -23,17 +23,22 @@ const contentStyle: React.CSSProperties = {
 const delay = (duration: number) => () => new Promise((resolve) => setTimeout(resolve, duration));
 
 const RegisterButton: React.FC = () => {
-    const [disable,setDisable] = useState(false);
+    const [disable, setDisable] = useState(true);
 
+   
     useEffect(() => {
-       delay(5*1000)
-    },[])
+        const timer = setTimeout(() => {
+            setDisable(false);
+        }, 10 * 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <Space>
             <div className='' >
                 <div className='service-card'>
-                    <div className='register' role='button' >register</div>
+                    <div className='register' style={{ backgroundColor: disable ? '#dedede' : 'red' }} role='button'  >register</div>
                 </div>
             </div>
         </Space>);

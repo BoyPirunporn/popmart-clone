@@ -2,6 +2,7 @@ import * as React from 'react';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
 export default function MyCalendar({
     value,
@@ -26,11 +27,11 @@ export default function MyCalendar({
                 onChange={(newValue) => {
                     if (newValue) onChange(newValue);
                 }}
-                minDate={new Date()}
-                maxDate={new Date()}
+                minDate={new Date(dayjs().add(1,"days").toDate())}
+                maxDate={new Date(dayjs().add(1,"days").toDate())}
                 disableHighlightToday
                 disablePast
-                disableFuture
+                // disableFuture
                 slots={{
                     toolbar: () => null,
                     leftArrowIcon: () => null,
