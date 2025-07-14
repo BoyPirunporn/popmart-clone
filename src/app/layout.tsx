@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="th">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <Script
           id="aws-waf-captcha"

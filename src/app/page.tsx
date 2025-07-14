@@ -17,7 +17,7 @@ const page = () => {
       apiKey: process.env.NEXT_PUBLIC_AWS_CAPTCHA_KEY!, // ใส่ใน .env
       onSuccess: (token: any) => {
         console.log('CAPTCHA success:', token)
-        // ส่ง token ไป backend เพื่อ verify
+        window.location.reload()
       },
       onError: (err: any) => {
         console.error('CAPTCHA error:', err)
@@ -41,6 +41,8 @@ const page = () => {
           setCanva(canvas as HTMLCanvasElement);
           console.log("SET CANVA");
           setPromptType(em?.textContent!)
+          const labelEl = wafElement?.shadowRoot.querySelector("div")?.textContent?.toLowerCase() || "";
+          console.log({ labelEl })
           clearInterval(interval); // เจอแล้วหยุด
         } else {
           console.log("⏳ Canvas not found in shadowRoot");
@@ -60,10 +62,10 @@ const page = () => {
       const images = splitCanvasInto9Images(canva)
       const prompt = "These are 9 image tiles from a CAPTCHA. Tell me which tiles (numbered 1-9, left to right, top to bottom) contain '" + promptType + "'. Respond with only tile numbers as array."
 
-      askGeminiWithVision(images, prompt).then((indices) => {
-        console.log("🤖 GPT returned indices:", indices)
-        autoClickTiles(indices)
-      })
+      // askGeminiWithVision(images, prompt).then((indices) => {
+      //   console.log("🤖 GPT returned indices:", indices)
+      //   autoClickTiles(indices)
+      // })
     }
   }, [canva])
 
