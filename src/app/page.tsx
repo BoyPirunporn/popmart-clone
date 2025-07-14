@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import { askGeminiWithVision, askGPTWithVision, autoClickTiles, splitCanvasInto9Images } from './util'
 declare global {
   interface Window {
     AwsWafCaptcha: any
@@ -8,6 +9,7 @@ declare global {
 const page = () => {
   const captchaRef = React.useRef<HTMLDivElement>(null)
   const [canva, setCanva] = useState<HTMLCanvasElement | null>(null);
+  const [promptType, setPromptType] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (!window.AwsWafCaptcha || !captchaRef.current) return
@@ -33,10 +35,12 @@ const page = () => {
     const interval = setInterval(() => {
       const wafElement = document.getElementsByTagName("awswaf-captcha")[0];
       if (wafElement?.shadowRoot) {
+        const em = wafElement.shadowRoot.querySelector("em")
         const canvas = wafElement.shadowRoot.querySelector("canvas");
         if (canvas) {
           setCanva(canvas as HTMLCanvasElement);
           console.log("SET CANVA");
+          setPromptType(em?.textContent!)
           clearInterval(interval); // เจอแล้วหยุด
         } else {
           console.log("⏳ Canvas not found in shadowRoot");
@@ -50,38 +54,15 @@ const page = () => {
   }, [canva]);
 
 
+
   React.useEffect(() => {
     if (canva) {
-      const ctx = canva.getContext("2d");
-      const tileSize = canva.width / 3;
-      const images = [];
+      const images = splitCanvasInto9Images(canva)
+      const prompt = "These are 9 image tiles from a CAPTCHA. Tell me which tiles (numbered 1-9, left to right, top to bottom) contain '" + promptType + "'. Respond with only tile numbers as array."
 
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 3; col++) {
-          const tileCanvas = document.createElement('canvas');
-          tileCanvas.width = tileSize;
-          tileCanvas.height = tileSize;
-          const tileCtx = tileCanvas.getContext('2d');
-
-          tileCtx!.drawImage(
-            canva,
-            col * tileSize,
-            row * tileSize,
-            tileSize,
-            tileSize,
-            0,
-            0,
-            tileSize,
-            tileSize
-          );
-
-          const base64 = tileCanvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
-          images.push(base64);
-        }
-      }
-
-      images.forEach(image => {
-        callInferenceAPI(image)
+      askGeminiWithVision(images, prompt).then((indices) => {
+        console.log("🤖 GPT returned indices:", indices)
+        autoClickTiles(indices)
       })
     }
   }, [canva])
