@@ -1,0 +1,42 @@
+{
+  "Name": "nextjs-captcha-waf",
+  "Id": "6db8ed39-13c3-4c55-bebd-90134f04d385",
+  "ARN": "arn:aws:wafv2:us-east-1:059670544706:global/webacl/nextjs-captcha-waf/6db8ed39-13c3-4c55-bebd-90134f04d385",
+  "DefaultAction": {
+    "Allow": {}
+  },
+  "Description": "for testing",
+  "Rules": [
+    {
+      "Name": "captcha-protection",
+      "Priority": 0,
+      "Statement": {
+        "RateBasedStatement": {
+          "Limit": 101,
+          "EvaluationWindowSec": 300,
+          "AggregateKeyType": "IP"
+        }
+      },
+      "Action": {
+        "Captcha": {}
+      },
+      "VisibilityConfig": {
+        "SampledRequestsEnabled": true,
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "captcha-protection"
+      }
+    }
+  ],
+  "VisibilityConfig": {
+    "SampledRequestsEnabled": true,
+    "CloudWatchMetricsEnabled": true,
+    "MetricName": "nextjs-captcha-waf"
+  },
+  "Capacity": 2,
+  "ManagedByFirewallManager": false,
+  "LabelNamespace": "awswaf:059670544706:webacl:nextjs-captcha-waf:",
+  "RetrofittedByFirewallManager": false,
+  "OnSourceDDoSProtectionConfig": {
+    "ALBLowReputationMode": "ACTIVE_UNDER_DDOS"
+  }
+}
